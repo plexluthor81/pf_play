@@ -122,12 +122,12 @@ ylabel('2012 Ending Balance ($)')
 grid on
 
 %% Plot David's returns
-dep_norm = david_ending_balance./matthew_ending_balance;
+deb_norm = david_ending_balance./matthew_ending_balance;
 seb_norm = shovel_ending_balance./matthew_ending_balance;
 figure
-plot(dip_sizes,mean(dep_norm,2)')
+plot(dip_sizes,mean(deb_norm,2)')
 hold all
-plot(dip_sizes,median(dep_norm,2)')
+plot(dip_sizes,median(deb_norm,2)')
 plot(dip_sizes,mean(seb_norm,2)')
 plot(dip_sizes,median(seb_norm,2)')
 title(sprintf('Average Results for David over %d %d-year Intervals',length(start_years),duration_years))
@@ -138,19 +138,19 @@ grid on
 
 %% Show one example of when it doesn't work out
 figure
-plot(start_years(end-19:end)+duration_years, dep_norm(6, end-19:end))
+plot(start_years(end-19:end)+duration_years, deb_norm(6, end-19:end))
 hold all
-plot(start_years(end-19:end)+duration_years, dep_norm(11, end-19:end))
-plot(start_years(end-19:end)+duration_years, dep_norm(16, end-19:end))
+plot(start_years(end-19:end)+duration_years, deb_norm(11, end-19:end))
+plot(start_years(end-19:end)+duration_years, deb_norm(16, end-19:end))
 grid on
 legend('5% dip', '10% dip', '15% dip')
 xlabel('Ending Year')
-ylabel('Normalized return (Ashley=1)')
+ylabel(sprintf('Normalized return\n(Ashley=0%%, Matthew=1)'))
 title('An Example of When David Under-performs (this is uncommon)')
 
 %% Distribution of the David 10% parameter's returns:
 figure
-hist(dep_norm(11,:),linspace(0.98,1.04,25))
-xlabel(sprintf('Normalized Value, Ashley=1\n0.25%% bin width'))
+hist(deb_norm(11,:),linspace(0.98,1.04,25))
+xlabel(sprintf('Normalized Value, Matthew=1\n0.25%% bin width'))
 ylabel('Number of Occurences out of 78')
 title('Distribution of David''s returns waiting for 10% dips')
