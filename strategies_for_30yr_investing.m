@@ -61,14 +61,17 @@ for i_start_year = 1:length(start_years)
 end
 
 %% Then add in David Dip who invests immediately as long as the market is at least X% off it's all-time peak.
+% Bigshovel wants to "Monthly DCA unless the market dips then put the rest in"
 dip_sizes = linspace(0.00,0.3,31);
 david_ending_balance = zeros(length(dip_sizes),length(start_years));
+shovel_ending_balance = zeros(length(dip_sizes),length(start_years));
 for i_dip_size = 1:length(dip_sizes)
   dip_size = dip_sizes(i_dip_size);
   for i_start_year = 1:length(start_years)
     start_year = start_years(i_start_year);
     david_stocks = 0;
     david_cash = 0;
+    shovel_stocks = 0;
     for year = start_year:(start_year+duration_years-1)
       i_jan1 = find(d.fractional_date>=year,1);
       ii_year = i_jan1:(i_jan1+12); % include jan1 of following year
@@ -83,10 +86,21 @@ for i_dip_size = 1:length(dip_sizes)
       if ~isempty(i_david)
         david_stocks = david_stocks + david_cash*cash_vals(i_david)/stock_vals(i_david); 
         david_cash = 0;
-       end 
+        
+        i_shovel = i_david;
+        for i = 1:(i_shovel-1)
+          shovel_stocks = shovel_stocks + (2000/12*cash_vals(i)/cash_vals(1))/stock_vals(i);
+        end
+        shovel_stocks = shovel_stocks + max(0,(12-i_shovel))*2000/12*cash_vals(i_shovel)/cash_vals(1)/stock_vals(i_shovel);
+      else
+        for i = 1:12
+          shovel_stocks = shovel_stocks + (2000/12*cash_vals(i)/cash_vals(1))/stock_vals(i);
+        end 
+      end
     end
     i_end = find(d.fractional_date>=start_year+duration_years,1);
     david_ending_balance(i_dip_size,i_start_year) = david_stocks*d.spx_tr(i_end);  
+    shovel_ending_balance(i_dip_size,i_start_year) = shovel_stocks*d.spx_tr(i_end);  
   end
 end
 
@@ -109,14 +123,17 @@ grid on
 
 %% Plot David's returns
 dep_norm = david_ending_balance./david_ending_balance(1,:);
+seb_norm = shovel_ending_balance./ashley_ending_balance;
 figure
 plot(dip_sizes,mean(dep_norm,2)')
 hold all
 plot(dip_sizes,median(dep_norm,2)')
+plot(dip_sizes,mean(seb_norm,2)')
+plot(dip_sizes,median(seb_norm,2)')
 title(sprintf('Average Results for David over %d %d-year Intervals',length(start_years),duration_years))
 xlabel('Dip Size')
 ylabel('Normalized return (Ashley=1)')
-legend('Mean', 'Median')
+legend('David Mean', 'David Median', 'Shovel Mean', 'Shovel Median')
 grid on
 
 %% Show one example of when it doesn't work out
@@ -131,9 +148,9 @@ xlabel('Ending Year')
 ylabel('Normalized return (Ashley=1)')
 title('An Example of When David Under-performs (this is uncommon)')
 
-%% Distribution of the 10% parameter's returns:
+%% Distribution of the David 10% parameter's returns:
 figure
 hist(dep_norm(11,:),linspace(0.98,1.04,25))
-xlabel(sprintf('Normalized Value, Ashely=1\n0.25%% bin width'))
+xlabel(sprintf('Normalized Value, Ashley=1\n0.25%% bin width'))
 ylabel('Number of Occurences out of 78')
 title('Distribution of David''s returns waiting for 10% dips')
