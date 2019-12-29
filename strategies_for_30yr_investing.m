@@ -62,7 +62,8 @@ end
 
 %% Then add in David Dip who invests immediately as long as the market is at least X% off it's all-time peak.
 % Bigshovel wants to "Monthly DCA unless the market dips then put the rest in"
-dip_sizes = linspace(0.00,0.3,31);
+max_dip = 0.15;
+dip_sizes = linspace(0.00,max_dip,round(100*max_dip)+1);
 
 all_time_high = zeros(size(d.spx_tr));
 for i = 1:length(d.spx_tr)
@@ -87,7 +88,7 @@ for i_dip_size = 1:length(dip_sizes)
       david_cash = david_cash + 2000/cash_vals(1);
       
       dip_price = all_time_high(ii_year)*(1-dip_size);
-      i_david = find(stock_vals<dip_price,1);
+      i_david = find(stock_vals<=dip_price,1);
       if ~isempty(i_david)
         david_stocks = david_stocks + david_cash*cash_vals(i_david)/stock_vals(i_david); 
         david_cash = 0;
@@ -96,7 +97,7 @@ for i_dip_size = 1:length(dip_sizes)
         for i = 1:(i_shovel-1)
           shovel_stocks = shovel_stocks + (2000/12*cash_vals(i)/cash_vals(1))/stock_vals(i);
         end
-        shovel_stocks = shovel_stocks + max(0,(12-i_shovel))*2000/12*cash_vals(i_shovel)/cash_vals(1)/stock_vals(i_shovel);
+        shovel_stocks = shovel_stocks + max(0,(13-i_shovel))*2000/12*cash_vals(i_shovel)/cash_vals(1)/stock_vals(i_shovel);
       else
         for i = 1:12
           shovel_stocks = shovel_stocks + (2000/12*cash_vals(i)/cash_vals(1))/stock_vals(i);
