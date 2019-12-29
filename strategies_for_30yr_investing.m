@@ -63,6 +63,12 @@ end
 %% Then add in David Dip who invests immediately as long as the market is at least X% off it's all-time peak.
 % Bigshovel wants to "Monthly DCA unless the market dips then put the rest in"
 dip_sizes = linspace(0.00,0.3,31);
+
+all_time_high = zeros(size(d.spx_tr));
+for i = 1:length(d.spx_tr)
+  all_time_high(i) = max(d.spx_tr(1:i));
+end
+
 david_ending_balance = zeros(length(dip_sizes),length(start_years));
 shovel_ending_balance = zeros(length(dip_sizes),length(start_years));
 for i_dip_size = 1:length(dip_sizes)
@@ -76,12 +82,11 @@ for i_dip_size = 1:length(dip_sizes)
       i_jan1 = find(d.fractional_date>=year,1);
       ii_year = i_jan1:(i_jan1+12); % include jan1 of following year
       stock_vals = d.spx_tr(ii_year);
-      cash_vals = d.cash(ii_year);
-      all_time_high = max(d.spx_tr(floor(d.fractional_date)<=year));
+      cash_vals = d.cash(ii_year);      
       
       david_cash = david_cash + 2000/cash_vals(1);
       
-      dip_price = all_time_high*(1-dip_size);
+      dip_price = all_time_high(ii_year)*(1-dip_size);
       i_david = find(stock_vals<dip_price,1);
       if ~isempty(i_david)
         david_stocks = david_stocks + david_cash*cash_vals(i_david)/stock_vals(i_david); 
@@ -132,8 +137,9 @@ plot(dip_sizes,mean(seb_norm,2)')
 plot(dip_sizes,median(seb_norm,2)')
 title(sprintf('Average Results for David over %d %d-year Intervals',length(start_years),duration_years))
 xlabel('Dip Size')
-ylabel('Normalized return (Ashley=1)')
-legend('David Mean', 'David Median', 'Shovel Mean', 'Shovel Median')
+ylabel('Normalized return (Matthew=1)')
+l = legend('David Mean', 'David Median', 'Shovel Mean', 'Shovel Median');
+set(l,'Location','SouthWest')
 grid on
 
 %% Show one example of when it doesn't work out
