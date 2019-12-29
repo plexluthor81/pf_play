@@ -122,8 +122,8 @@ ylabel('2012 Ending Balance ($)')
 grid on
 
 %% Plot David's returns
-dep_norm = david_ending_balance./david_ending_balance(1,:);
-seb_norm = shovel_ending_balance./ashley_ending_balance;
+dep_norm = david_ending_balance./matthew_ending_balance;
+seb_norm = shovel_ending_balance./matthew_ending_balance;
 figure
 plot(dip_sizes,mean(dep_norm,2)')
 hold all
